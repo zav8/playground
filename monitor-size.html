@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Size Simulate</title>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        .sim-box {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            text-align: right;
+            background-color: #99887733;
+        }
+
+        .sim-box sub {
+            color: #4e7e71cc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sim-box inch-27"></div>
+    <div class="sim-box inch-25"></div>
+    <!-- <div class="sim-box inch-25 ratio-16-10"></div> -->
+    <div class="sim-box inch-23.5"></div>
+    <div class="sim-box inch-21.5"></div>
+    <!-- <div class="sim-box inch-21"></div> -->
+    <div class="sim-box inch-21 ratio-3-2"></div>
+    <!-- <div class="sim-box inch-21 ratio-16-10"></div> -->
+    <div class="sim-box inch-17.3"></div>
+    <div class="sim-box inch-16 ratio-16-10"></div>
+    <div class="sim-box inch-15.6"></div>
+
+    <script>
+        window.onload = function () {
+            // 矩形
+            class Rect {
+                constructor(w, h) {
+                    this.w = w
+                    this.h = h
+                }
+                get d() {
+                    return Math.sqrt(this.w ** 2 + this.h ** 2)
+                }
+                desc(inch) {
+                    return `<sub>${this.w}:${this.h}</sub>${inch}`
+                }
+            }
+
+            // 16:9 的矩形
+            const r169 = new Rect(16, 9)
+
+            // 真实屏幕尺寸
+            const aSize = 27
+
+            // 格式化百分比
+            const fmtPct = (pct) => pct * 100 + '%'
+
+            document.querySelectorAll('.sim-box').forEach(e => {
+                // 从类名中提取尺寸数字
+                const sInch = [...e.classList].find(c => c.indexOf('inch-') == 0)
+                const inch = Number(sInch.substr(5))
+                // 屏幕比例
+                let ratio
+                const sRatio = [...e.classList].find(c => c.indexOf('ratio-') == 0)
+                if (sRatio) {
+                    let sp = sRatio.substr(6).split('-')
+                    ratio = new Rect(+sp[0], +sp[1])
+                } else {
+                    ratio = r169
+                }
+                // 两种矩形在对角长度相等时，长宽的比例
+                const rw = (ratio.w / ratio.d) / (r169.w / r169.d)
+                const rh = (ratio.h / ratio.d) / (r169.h / r169.d)
+                e.style.width = fmtPct(inch / aSize * rw)
+                e.style.height = fmtPct(inch / aSize * rh)
+                e.innerHTML = ratio.desc(inch)
+            })
+        }
+    </script>
+</body>
+
+</html>
